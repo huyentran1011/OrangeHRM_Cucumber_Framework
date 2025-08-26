@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout'){
+            steps{
+                git branch: 'main', url: 'https://github.com/huyentran1011/OrangeHRM_Cucumber_Framework'
+            }
+        }
+        stage('Build and Test'){
+            steps {
+                sh 'mvn clean test'
+            }
+        }
+        stage('Allure Report'){
+            steps{
+                allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+            }
+        }
+        stage('Cucumber Report'){
+            cucumber fileIncludePattern:'**/*.json', sortingMethod: 'ALPHABETICAL'
+        }
+    }
+}

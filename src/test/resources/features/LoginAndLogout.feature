@@ -9,8 +9,8 @@ Feature: verify OrangeHRM Login page
 
   @LoginSuccess
   Scenario: Successful Login with Valid Credentials
-    Given I enter "automationfc" into "Username" textbox
-    When I enter "orangehrm5@X" into "Password" textbox
+    Given I enter "Admin" into "Username" textbox
+    When I enter "admin123" into "Password" textbox
     And I click on the "Login" button
     Then Dashboard page is displayed
     When I logout
@@ -22,8 +22,9 @@ Feature: verify OrangeHRM Login page
     When I enter "<Password>" into "Password" textbox
     And I click on the "Login" button
     Then I see the "Login" button is displayed
+    When I refresh the current page
     Examples:
       | Username     | Password     |
       |              |              |
-      | automationfc |              |
-      |              | orangehrm5@X |
+      | admin        |              |
+      |              | admin123     |

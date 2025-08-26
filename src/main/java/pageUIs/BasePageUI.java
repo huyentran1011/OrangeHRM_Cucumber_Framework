@@ -13,6 +13,7 @@ public class BasePageUI {
 
     public static final String DROPDOWN_BY_LABEL = "xpath=//label[text()='%s']/../following-sibling::div/div";
     public static final String CHILD_LIST_OF_DROPDOWN = "xpath=//div[@role='option']/span";
+    public static final String LOADING_ICON = "css=div.oxd-loading-spinner";
 
 
 

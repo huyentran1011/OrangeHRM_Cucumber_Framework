@@ -11,7 +11,7 @@ Feature: Verify functions at Add Employee page
     Then I see "Add Employee" page is displayed
     When I enter "<FirstName>" into a textbox which has placeholder is "First Name"
     And I enter "<LastName>" into a textbox which has placeholder is "Last Name"
-    And I get value of Employee Id textbox
+    And I get value of "Employee Id" textbox
     And I click on the "Save" button
     Then I see the toast message with title is "Success" and content is "Successfully Saved"
     Then I see "Personal Details" page is displayed

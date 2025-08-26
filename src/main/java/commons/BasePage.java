@@ -1,6 +1,4 @@
 package commons;
-
-import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.Color;
@@ -13,7 +11,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class BasePage {
 
@@ -134,6 +131,10 @@ public class BasePage {
         new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIME_OUT)).until(ExpectedConditions.textToBePresentInElementLocated(getElementByLocator(locator), expectedText));
     }
 
+    public boolean isTextToBePresentInElement(WebDriver driver, String locator, String expectedText){
+        return new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIME_OUT)).until(ExpectedConditions.textToBePresentInElementLocated(getElementByLocator(locator), expectedText));
+    }
+
     public void waitForTextToBePresentInElement(WebDriver driver, String locator, String expectedText, String... restParameter){
         new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIME_OUT)).until(ExpectedConditions.textToBePresentInElementLocated(getElementByLocator(castParameter(locator, restParameter)), expectedText));
     }
@@ -190,6 +191,10 @@ public class BasePage {
         return driver.findElement(getElementByLocator(locator));
     }
 
+    protected WebElement getElement(WebDriver driver, String locator, String... restParameter) {
+        return driver.findElement(getElementByLocator(castParameter(locator, restParameter)));
+    }
+
     protected List<WebElement> getListElements(WebDriver driver, String locator) {
         return driver.findElements(getElementByLocator(locator));
     }
@@ -209,6 +214,7 @@ public class BasePage {
 
     public void sendKeyIntoElement(WebDriver driver, String locator, String keysToSend) {
         getElement(driver, locator).clear();
+        sleepInSeconds(2);
         getElement(driver, locator).sendKeys(keysToSend);
     }
 
@@ -345,7 +351,7 @@ public class BasePage {
         overrideGlobalTimeout(driver, GlobalConstants.SHORT_TIME_OUT);
         List<WebElement> elements = getListElements(driver, locator);
         overrideGlobalTimeout(driver, GlobalConstants.LONG_TIME_OUT);
-        
+
         if(elements.isEmpty()){
             // Element is not in DOM
             return true;
@@ -415,6 +421,10 @@ public class BasePage {
         new Actions(driver).scrollToElement(getElement(driver, locator)).perform();
     }
 
+    public void scrollToElement(WebDriver driver, String locator, String... restParameter) {
+        new Actions(driver).scrollToElement(getElement(driver, locator, restParameter)).perform();
+    }
+
     public void sendKeyboardToAnElement(WebDriver driver, String locator, Keys key) {
         new Actions(driver).sendKeys(getElement(driver, locator), key).perform();
     }
@@ -431,21 +441,46 @@ public class BasePage {
         ((JavascriptExecutor) driver).executeScript("arguments[0].setAttribute('style', arguments[1])", element, originalStyle);
     }
 
+    public void highlightElement(WebDriver driver, String locator, String... restParameter) {
+        WebElement element = getElement(driver, locator, restParameter);
+        String originalStyle = element.getDomAttribute("style");
+        ((JavascriptExecutor) driver).executeScript("arguments[0].setAttribute('style', arguments[1])", element, "border: 2px solid red; border-style: dashed;");
+        sleepInSeconds(2);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].setAttribute('style', arguments[1])", element, originalStyle);
+    }
+
     public void clickOnElementByJS(WebDriver driver, String locator) {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(driver, locator));
         sleepInSeconds(3);
     }
 
+    public void clickOnElementByJS(WebDriver driver, String locator, String... restParameter) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(driver, locator, restParameter));
+        sleepInSeconds(3);
+    }
+
     public void scrollToElementOnTopByJS(WebDriver driver, String locator) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", getElement(driver, locator));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'start'});", getElement(driver, locator));
     }
 
-    public void scrollToElementOnDownByJS(WebDriver driver, String locator) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(false);", getElement(driver, locator));
+    public void scrollToElementOnTopByJS(WebDriver driver, String locator, String... restParameter) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'start'});", getElement(driver, locator, restParameter));
     }
 
-    public void scrollToBottomPageByJS(WebDriver driver) {
-        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0,document.body.scrollHeight)");
+    public void scrollToElementOnCenterByJS(WebDriver driver, String locator) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", getElement(driver, locator));
+    }
+
+    public void scrollToElementOnCenterByJS(WebDriver driver, String locator, String... restParameter) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", getElement(driver, locator, restParameter));
+    }
+
+    public void scrollToElementOnBottomByJS(WebDriver driver, String locator) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'end'});", getElement(driver, locator));
+    }
+
+    public void scrollToElementOnBottomByJS(WebDriver driver, String locator, String... restParameter) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'end'});", getElement(driver, locator, restParameter));
     }
 
     public void setAttributeInDOM(WebDriver driver, String locator, String attributeName, String attributeValue) {
@@ -464,6 +499,10 @@ public class BasePage {
         return (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].getAttribute('" + attributeName + "');", getElement(driver, locator));
     }
 
+    public String getAttributeInDOMByJS(WebDriver driver, String locator, String attributeName, String... restParameter ) {
+        return (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].getAttribute('" + attributeName + "');", getElement(driver, locator, restParameter));
+    }
+
     public String getElementValidationMessage(WebDriver driver, String locator) {
         return (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].validationMessage;", getElement(driver, locator));
     }
@@ -472,7 +511,6 @@ public class BasePage {
         return (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].complete " + "&& typeof arguments[0].naturalWidth != 'undefined' && arguments[0].naturalWidth > 0", getElement(driver, locator));
     }
 
-    @Step("Upload files: {1}")
     public void uploadMultipleFiles(WebDriver driver, String... fileNames){
         String uploadFileLocation = "";
         for(String file:fileNames){
@@ -528,9 +566,9 @@ public class BasePage {
         return valuesByColumn;
     }
 
-    public List<String> getAllDataByRowIndex(WebDriver driver, String cellLocatorsByRowIndex, String rowNumber){
-        waitForElementVisible(driver, cellLocatorsByRowIndex, rowNumber);
-        List<WebElement> cellElements = getListElements(driver, cellLocatorsByRowIndex, rowNumber);
+    public List<String> getAllDataByRowIndex(WebDriver driver, String cellLocatorsByRowIndex, String rowIndex){
+        waitForElementVisible(driver, cellLocatorsByRowIndex, rowIndex);
+        List<WebElement> cellElements = getListElements(driver, cellLocatorsByRowIndex, rowIndex);
         List<String> allDataInRow = new ArrayList<>();
         for(int i = 1; i < cellElements.size(); i++){
             allDataInRow.add(cellElements.get(i).getText());
@@ -538,51 +576,140 @@ public class BasePage {
         return allDataInRow;
     }
 
-//    public void waitForLoadingSpinnerDisable(WebDriver driver){
-//        waitForElementInvisible(driver, "div.oxd-loading-spinner");
-//    }
+    public List<List<String>> getDataInTableInAllPages(WebDriver driver, String tableName, String tableLocator, String rowLocator, String cellLocator, String pageLinkLocators){
+        List<List<String>> uiDataTable = new ArrayList<>();
+        waitForElementVisible(driver, tableLocator, tableName);
+        sleepInSeconds(3);
 
-    // These lines of code for Pattern Object
-    @Step("Enter value into the '{1}' textbox: {2}")
-    public void enterValueIntoTextboxByLabel(WebDriver driver, String elementLabel, String inputValue){
-        waitForElementVisible(driver, BasePageUI.TEXTBOX_BY_LABEL, elementLabel);
-        sendKeyIntoElement(driver, BasePageUI.TEXTBOX_BY_LABEL, inputValue, elementLabel);
+        List<WebElement> pageLinkElements = getListElements(driver, pageLinkLocators);
+        int pageCount = pageLinkElements.isEmpty() ?  1:pageLinkElements.size();
+        System.out.println("Page Count: " + pageCount);
+
+        // Loop through each page
+        for(int pageIndex = 0; pageIndex < pageCount; pageIndex++){
+            // Re-fetch page links and click next page if not first
+            System.out.println("Page Index: " + pageIndex);
+            if(pageIndex > 0){
+                pageLinkElements = getListElements(driver, pageLinkLocators);
+                pageLinkElements.get(pageIndex).click();
+                waitForElementVisible(driver, tableLocator, tableName);
+            }
+
+            WebElement tableElement = getElement(driver, tableLocator, tableName);
+            List<WebElement> rowElements = tableElement.findElements(getElementByLocator(rowLocator));
+
+            for (WebElement rowElement : rowElements) {
+                List<String> rowData = new ArrayList<>();
+                List<WebElement> cellElements = rowElement.findElements(getElementByLocator(cellLocator));
+
+                if (!cellElements.isEmpty()) {
+                    // Skipping first and last column (e.g., checkbox and actions)
+                    for (int j = 1; j < cellElements.size() - 1; j++) {
+                        rowData.add(cellElements.get(j).getText().trim());
+                    }
+                    uiDataTable.add(rowData);
+                }
+            }
+        }
+        return uiDataTable;
     }
 
-    @Step("Enter value into the '{1}' textbox: {2}")
-    public void enterValueIntoTextboxByNameAttribute(WebDriver driver, String nameAttributeValue, String inputValue){
-        waitForElementVisible(driver, BasePageUI.TEXTBOX_BY_NAME, nameAttributeValue);
-        sendKeyIntoElement(driver, BasePageUI.TEXTBOX_BY_NAME, inputValue, nameAttributeValue);
+    public List<List<String>> getDataInTableInAllPagesIncludeHeader(WebDriver driver, String tableName,  String tableLocator, String rowLocator, String headerCellLocator, String cellLocator, String pageLinkLocators){
+        List<List<String>> dataTable = new ArrayList<>();
+        waitForElementVisible(driver, tableLocator, tableName);
+
+        List<WebElement> pageLinkElements = getListElements(driver, pageLinkLocators);
+        int pageCount = pageLinkElements.isEmpty() ?  1:pageLinkElements.size();
+
+        // Loop through each page
+        for(int pageIndex = 0; pageIndex < pageCount; pageIndex++){
+            // Re-fetch page links and click next page if not first
+            if(pageIndex > 0){
+                pageLinkElements = getListElements(driver, pageLinkLocators);
+                pageLinkElements.get(pageIndex).click();
+                waitForElementVisible(driver, tableLocator, tableName);
+            }
+
+            WebElement tableElement = getElement(driver, tableLocator, tableName);
+            List<WebElement> rowElements = tableElement.findElements(getElementByLocator(rowLocator));
+
+            for (int i = 0 ; i < rowElements.size(); i++) {
+                List<String> rowData = new ArrayList<>();
+                List<WebElement> cellElements;
+
+                // Adding header text into the first row of the list.
+                if(i == 0 && pageIndex == 0){
+                    cellElements = rowElements.get(i).findElements(getElementByLocator(headerCellLocator));
+                } else{
+                    cellElements = rowElements.get(i).findElements(getElementByLocator(cellLocator));
+                }
+
+                if(! cellElements.isEmpty()){
+                    // Skipping first and last column (e.g., checkbox and actions)
+                    for (int j = 1; j < cellElements.size() - 1; j++) {
+                        rowData.add(cellElements.get(j).getText().trim());
+                    }
+                    dataTable.add(rowData);
+                }
+            }
+        }
+        return dataTable;
     }
 
-    @Step("Enter value into the '{1}' textbox: {2}")
-    public void enterValueIntoDatePickerTextboxByLabel(WebDriver driver, String elementLabel, String inputValue){
-        waitForElementVisible(driver, BasePageUI.TIME_PICKER_TEXTBOX_BY_LABEL, elementLabel);
-        sendKeyIntoElement(driver, BasePageUI.TIME_PICKER_TEXTBOX_BY_LABEL, inputValue, elementLabel);
+
+    public List<List<String>> getDataInTableInAPage(WebDriver driver, String tableName, String tableLocator, String rowLocator, String headerCellLocator, String cellLocator){
+        List<List<String>> uiDataTable = new ArrayList<>();
+        waitForElementVisible(driver, tableLocator, tableName);
+
+        WebElement tableElement = getElement(driver, tableLocator, tableName);
+        List<WebElement> rowElements = tableElement.findElements(getElementByLocator(rowLocator));
+
+        for (int i = 0 ; i < rowElements.size(); i++) {
+            List<String> rowData = new ArrayList<>();
+            List<WebElement> cellElements = rowElements.get(i).findElements(getElementByLocator(cellLocator));
+
+            if(!cellElements.isEmpty()){
+                // Skipping first and last column (e.g., checkbox and actions)
+                for (int j = 1; j < cellElements.size() - 1; j++) {
+                    rowData.add(cellElements.get(j).getText().trim());
+                }
+                uiDataTable.add(rowData);
+            }
+        }
+        return uiDataTable;
     }
 
-    @Step("Click on the '{1}' button.")
-    public void clickOnButtonByText(WebDriver driver, String textOnButton){
-        waitForElementClickable(driver, BasePageUI.BUTTON_BY_TEXT, textOnButton);
-        clickOnElement(driver, BasePageUI.BUTTON_BY_TEXT, textOnButton);
+    public String normalizeString(String value){
+        if(value == null || value.equalsIgnoreCase("null") || value.trim().isEmpty()){
+            return "null";
+        }
+        return value.trim();
     }
 
-    @Step("Click on the '{1}' radio button.")
-    public  void clickOnRadioButtonByLabel(WebDriver driver, String elementLabel){
-        waitForElementClickable(driver, BasePageUI.RADIO_BUTTON_BY_LABEL, elementLabel);
-        clickOnElement(driver, BasePageUI.RADIO_BUTTON_BY_LABEL, elementLabel);
+    public List<String> normalizeListString(List<String> listOfValue){
+        List<String> resultString = new ArrayList<>();
+        for(String value:listOfValue){
+            resultString.add(normalizeString(value));
+        }
+        return resultString;
     }
 
-    @Step("Get value of '{2}' property of the '{1}' textbox.")
-    public String getDOMPropertyValueOfElementByName(WebDriver driver, String nameAttributeValue, String propertyName) {
-        waitForElementVisible(driver, BasePageUI.TEXTBOX_BY_NAME, nameAttributeValue);
-        return getDomPropertyValue(driver, BasePageUI.TEXTBOX_BY_NAME, propertyName, nameAttributeValue);
+    public List<List<String>> normalizeListOfListString(List<List<String>> listOfValues){
+        List<List<String>> resultListOfListString = new ArrayList<>();
+        for(List<String> listOfValue:listOfValues){
+            resultListOfListString.add(normalizeListString(listOfValue));
+        }
+        return resultListOfListString;
     }
 
-    @Step("Select '{2}' value from the '{1}' dropdown menu.")
-    public void selectValueFromDropdownMenuByLabel(WebDriver driver, String elementLabel, String selectValue) {
-        waitForElementVisible(driver, BasePageUI.DROPDOWN_BY_LABEL, elementLabel);
-        selectItemInCustomDropdown(driver, BasePageUI.DROPDOWN_BY_LABEL, BasePageUI.CHILD_LIST_OF_DROPDOWN,
-                selectValue, elementLabel);
+    public void waitForLoadingSpinnerDisable(WebDriver driver){
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(2)).until(ExpectedConditions.visibilityOfElementLocated(getElementByLocator(BasePageUI.LOADING_ICON)));
+        } catch (TimeoutException e) {
+            // Spinner never appeared → fast case, no wait needed
+            return;
+        }
+        waitForElementInvisible(driver, BasePageUI.LOADING_ICON);
     }
+
 }
