@@ -28,3 +28,4 @@ Feature: verify OrangeHRM Login page
       |              |              |
       | admin        |              |
       |              | admin123     |
+      | abc          | 1bc123       |
